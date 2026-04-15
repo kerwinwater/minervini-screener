@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>超級績效選股儀 — Minervini 趨勢模板</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0C0F;
+  --bg2:#111318;
+  --bg3:#181C22;
+  --border:#252A34;
+  --border2:#2E3440;
+  --gold:#D4A843;
+  --gold2:#F0C060;
+  --gold-dim:#8A6A25;
+  --text:#E8EAF0;
+  --text2:#9BA3B5;
+  --text3:#5C6478;
+  --green:#3DDC84;
+  --green-bg:rgba(61,220,132,0.08);
+  --red:#FF5C5C;
+  --red-bg:rgba(255,92,92,0.08);
+  --amber:#F0A030;
+  --amber-bg:rgba(240,160,48,0.08);
+  --blue:#5B9CF6;
+  --radius:6px;
+  --radius-lg:12px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Noto Sans TC',sans-serif;
+  font-weight:300;
+  min-height:100vh;
+  line-height:1.6;
+}
+
+/* ── NAV ── */
+nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 2rem;
+  height:56px;
+  border-bottom:1px solid var(--border);
+  background:rgba(10,12,15,0.95);
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(8px);
+}
+.nav-logo{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--gold);
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+}
+.nav-badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text3);
+  border:1px solid var(--border2);
+  padding:3px 10px;
+  border-radius:99px;
+  letter-spacing:0.1em;
+}
+
+/* ── HERO ── */
+.hero{
+  padding:4rem 2rem 3rem;
+  max-width:800px;
+  margin:0 auto;
+  text-align:center;
+}
+.hero-tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--gold-dim);
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  margin-bottom:1.25rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.hero-tag::before,.hero-tag::after{
+  content:'';
+  width:32px;
+  height:1px;
+  background:var(--gold-dim);
+}
+.hero h1{
+  font-size:clamp(1.75rem,4vw,2.75rem);
+  font-weight:700;
+  color:var(--text);
+  line-height:1.2;
+  margin-bottom:1rem;
+}
+.hero h1 span{color:var(--gold)}
+.hero p{
+  font-size:15px;
+  color:var(--text2);
+  max-width:520px;
+  margin:0 auto 2.5rem;
+  line-height:1.8;
+}
+
+/* ── SEARCH ── */
+.search-wrap{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:1.5rem;
+  max-width:680px;
+  margin:0 auto;
+}
+.market-tabs{
+  display:flex;
+  gap:6px;
+  margin-bottom:1rem;
+}
+.tab{
+  padding:5px 14px;
+  border:1px solid var(--border2);
+  border-radius:99px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.08em;
+  color:var(--text3);
+  cursor:pointer;
+  background:none;
+  transition:all 0.15s;
+}
+.tab:hover{color:var(--text2);border-color:var(--border2)}
+.tab.active{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:var(--bg);
+  font-weight:500;
+}
+.search-row{display:flex;gap:10px}
+.search-input{
+  flex:1;
+  height:48px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  padding:0 1rem;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:17px;
+  font-weight:500;
+  color:var(--text);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  outline:none;
+  transition:border-color 0.15s;
+}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{
+  color:var(--text3);
+  font-size:13px;
+  font-weight:400;
+  text-transform:none;
+  letter-spacing:0;
+}
+.search-btn{
+  height:48px;
+  padding:0 1.5rem;
+  background:var(--gold);
+  color:var(--bg);
+  border:none;
+  border-radius:var(--radius);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background 0.15s,transform 0.1s;
+  white-space:nowrap;
+}
+.search-btn:hover{background:var(--gold2)}
+.search-btn:active{transform:scale(0.97)}
+.search-btn:disabled{opacity:0.4;cursor:not-allowed}
+.quick-picks{
+  margin-top:0.75rem;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.quick-label{
+  font-size:11px;
+  color:var(--text3);
+  font-family:'IBM Plex Mono',monospace;
+}
+.chip{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--text2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:3px 10px;
+  cursor:pointer;
+  background:none;
+  transition:all 0.15s;
+  letter-spacing:0.05em;
+}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── LOADING ── */
+.loading{
+  display:none;
+  text-align:center;
+  padding:3rem 1rem;
+}
+.spin{
+  width:36px;height:36px;
+  border:2px solid var(--border2);
+  border-top-color:var(--gold);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  margin:0 auto 1rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.15em;
+  color:var(--text3);
+  text-transform:uppercase;
+}
+
+/* ── ERROR ── */
+.error-box{
+  display:none;
+  background:var(--red-bg);
+  border:1px solid rgba(255,92,92,0.25);
+  border-radius:var(--radius);
+  padding:1rem 1.25rem;
+  color:var(--red);
+  font-size:13px;
+  margin-top:1rem;
+}
+
+/* ── RESULT ── */
+.result{
+  display:none;
+  max-width:680px;
+  margin:1.5rem auto 0;
+  animation:fadeUp 0.4s ease;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Result header */
+.r-header{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  padding:1.5rem;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:1rem;
+  flex-wrap:wrap;
+}
+.r-ticker{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:2rem;
+  font-weight:500;
+  color:var(--text);
+  line-height:1;
+  margin-bottom:4px;
+}
+.r-company{font-size:13px;color:var(--text3)}
+.verdict{
+  padding:6px 16px;
+  border-radius:4px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  align-self:flex-start;
+}
+.verdict-pass{background:var(--green-bg);color:var(--green);border:1px solid rgba(61,220,132,0.3)}
+.verdict-warn{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(240,160,48,0.3)}
+.verdict-fail{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,92,92,0.3)}
+
+/* Score strip */
+.score-strip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  border-left:1px solid var(--border);
+  border-right:1px solid var(--border);
+  background:var(--bg2);
+}
+.score-cell{
+  padding:1rem 1.25rem;
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.score-cell:last-child{border-right:none}
+.score-cell-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--text3);
+  margin-bottom:6px;
+}
+.score-cell-val{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:1.6rem;
+  font-weight:500;
+  color:var(--text);
+  line-height:1;
+}
+.score-cell-val small{
+  font-size:0.9rem;
+  color:var(--text3);
+}
+.score-cell-sub{
+  font-size:12px;
+  color:var(--text3);
+  margin-top:4px;
+  line-height:1.4;
+}
+.bar-track{
+  height:2px;
+  background:var(--border2);
+  border-radius:2px;
+  margin-top:8px;
+  overflow:hidden;
+}
+.bar-fill{
+  height:2px;
+  border-radius:2px;
+  transition:width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Criteria */
+.criteria-wrap{
+  border:1px solid var(--border);
+  border-top:none;
+  background:var(--bg2);
+}
+.criteria-section-label{
+  padding:0.6rem 1.25rem;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--text3);
+}
+.criterion{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:0.9rem 1.25rem;
+  border-bottom:1px solid var(--border);
+  transition:background 0.1s;
+}
+.criterion:hover{background:var(--bg3)}
+.criterion:last-child{border-bottom:none}
+.c-icon{
+  width:22px;height:22px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:700;
+  flex-shrink:0;
+  margin-top:2px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.c-icon.ok{background:var(--green-bg);color:var(--green)}
+.c-icon.no{background:var(--red-bg);color:var(--red)}
+.c-icon.unk{background:var(--bg3);color:var(--text3)}
+.c-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text3);
+  letter-spacing:0.1em;
+  margin-bottom:2px;
+}
+.c-name{
+  font-size:13px;
+  font-weight:500;
+  color:var(--text);
+  margin-bottom:3px;
+  line-height:1.4;
+}
+.c-desc{font-size:12px;color:var(--text3);line-height:1.6}
+.c-val{
+  margin-top:5px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--text2);
+  background:var(--bg3);
+  border:1px solid var(--border);
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:3px;
+}
+
+/* Summary */
+.r-footer{
+  border:1px solid var(--border);
+  border-top:none;
+  border-radius:0 0 var(--radius-lg) var(--radius-lg);
+  background:var(--bg3);
+  padding:1rem 1.25rem;
+}
+.r-summary{font-size:13px;color:var(--text2);line-height:1.8}
+.r-note{font-size:12px;color:var(--text3);line-height:1.7;margin-top:6px}
+
+/* ── 8 CRITERIA REFERENCE ── */
+.ref-section{
+  max-width:680px;
+  margin:3rem auto 0;
+  padding:0 0 4rem;
+}
+.ref-heading{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--text3);
+  margin-bottom:1rem;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.ref-heading::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--border);
+}
+.ref-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:8px;
+}
+.ref-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1rem;
+  transition:border-color 0.15s;
+}
+.ref-card:hover{border-color:var(--border2)}
+.ref-n{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--gold-dim);
+  letter-spacing:0.1em;
+  margin-bottom:5px;
+}
+.ref-title{
+  font-size:12px;
+  font-weight:500;
+  color:var(--text);
+  line-height:1.5;
+  margin-bottom:4px;
+}
+.ref-body{font-size:11px;color:var(--text3);line-height:1.6}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);
+  padding:1.25rem 2rem;
+  text-align:center;
+}
+footer p{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text3);
+  letter-spacing:0.08em;
+  line-height:2;
+}
+footer span{color:var(--gold-dim)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:540px){
+  nav{padding:0 1rem}
+  .hero{padding:2.5rem 1rem 2rem}
+  .search-wrap{margin:0 1rem}
+  .result{margin:1rem 1rem 0}
+  .score-strip{grid-template-columns:1fr 1fr}
+  .score-cell:nth-child(3){grid-column:span 2;border-right:none}
+  .r-header{padding:1rem}
+  .ref-section{padding:0 1rem 3rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">超級績效選股儀</div>
+  <div class="nav-badge">Beta · 免費使用</div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="hero-tag">Mark Minervini · SEPA® 方法</div>
+    <h1>一鍵檢查股票<br>是否符合<span>趨勢模板</span></h1>
+    <p>根據《股票魔法師Ⅱ》8 條黃金標準，即時分析美股、台股、港股<br>是否處於第二階段上升趨勢</p>
+  </div>
+
+  <div class="search-wrap">
+    <div class="market-tabs">
+      <button class="tab active" onclick="setMarket('us',this)">美股</button>
+      <button class="tab" onclick="setMarket('tw',this)">台股</button>
+      <button class="tab" onclick="setMarket('hk',this)">港股</button>
+    </div>
+    <div class="search-row">
+      <input class="search-input" id="ticker" type="text"
+        placeholder="輸入股票代號，例如 AAPL" maxlength="12" autocomplete="off"/>
+      <button class="search-btn" id="analyzeBtn" onclick="analyze()">分析 →</button>
+    </div>
+    <div class="quick-picks">
+      <span class="quick-label">快速查：</span>
+      <button class="chip" onclick="quick('NVDA')">NVDA</button>
+      <button class="chip" onclick="quick('AAPL')">AAPL</button>
+      <button class="chip" onclick="quick('TSLA')">TSLA</button>
+      <button class="chip" onclick="quick('2330')">台積電 2330</button>
+      <button class="chip" onclick="quick('2454')">聯發科 2454</button>
+      <button class="chip" onclick="quick('0700')">騰訊 0700</button>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spin"></div>
+    <p>搜尋即時市場數據中...</p>
+  </div>
+  <div class="error-box" id="errBox"></div>
+
+  <div class="result" id="result"></div>
+
+  <!-- 8 條標準參考 -->
+  <div class="ref-section">
+    <div class="ref-heading">趨勢模板 8 條標準參考</div>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <div class="ref-n">標準 01</div>
+        <div class="ref-title">股價高於 150日 & 200日均線</div>
+        <div class="ref-body">確認處於中長期上升趨勢</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-n">標準 02</div>
+        <div class="ref-title">150日均線 > 200日均線</div>
+        <div class="ref-body">中期動能強於長期，排列正確</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-n">標準 03</div>
+        <div class="ref-title">200日均線上升 ≥ 1 個月</div>
+        <div class="ref-body">長期趨勢持續向上，最好 4–5 個月</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-n">標準 04</div>
+        <div class="ref-title">50日均線 > 150日 & 200日</div>
+        <div class="ref-body">短中長期均線完美多頭排列</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-n">標準 05</div>
+        <div class="ref-title">股價比 52 週低點高 ≥ 25%</div>
+        <div class="ref-body">已從底部顯著反彈，機構開始積累</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-n">標準 06</div>
+        <div class="ref-title">股價在 52 週高點 25% 以內</div>
+        <div class="ref-body">越接近歷史新高越佳，強勢未消</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-n">標準 07</div>
+        <div class="ref-title">RS 相對強度排名 ≥ 70</div>
+        <div class="ref-body">跑贏大盤，最好達 90 以上</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-n">標準 08</div>
+        <div class="ref-title">股價在 50日均線之上</div>
+        <div class="ref-body">短期動能良好，突破後維持均線上方</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>
+    根據 <span>Mark Minervini《股票魔法師Ⅱ》</span> SEPA® 趨勢模板原則構建<br>
+    數據由 AI 即時搜尋 · 僅供學習參考 · 不構成任何投資建議<br>
+    投資有風險，入市需謹慎
+  </p>
+</footer>
+
+<script>
+const API = "https://api.anthropic.com/v1/messages";
+let market = 'us';
+
+const placeholders = {
+  us: '輸入股票代號，例如 AAPL、NVDA、TSLA',
+  tw: '輸入台股代號，例如 2330、2454、0050',
+  hk: '輸入港股代號，例如 0700、9988、2318'
+};
+
+const quickChips = {
+  us: [['NVDA','NVDA'],['AAPL','AAPL'],['TSLA','TSLA'],['META','META'],['AMZN','AMZN']],
+  tw: [['2330','台積電'],['2454','聯發科'],['2382','廣達'],['2317','鴻海'],['0050','元大50']],
+  hk: [['0700','騰訊'],['9988','阿里'],['3690','美團'],['1024','快手'],['2318','平安']]
+};
+
+function setMarket(m, btn) {
+  market = m;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ticker').placeholder = placeholders[m];
+  document.getElementById('ticker').value = '';
+  const qp = document.querySelector('.quick-picks');
+  const chips = quickChips[m].map(([code, name]) =>
+    `<button class="chip" onclick="quick('${code}')">${name} ${code}</button>`
+  ).join('');
+  qp.innerHTML = `<span class="quick-label">快速查：</span>${chips}`;
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+}
+
+function quick(code) {
+  document.getElementById('ticker').value = code;
+  analyze();
+}
+
+function formatTicker(raw) {
+  if (market === 'tw') {
+    return raw.replace(/\.TW$/i,'') + '.TW';
+  }
+  if (market === 'hk') {
+    const n = raw.replace(/\.HK$/i,'');
+    return n.padStart(4,'0') + '.HK';
+  }
+  return raw.toUpperCase();
+}
+
+async function analyze() {
+  const raw = document.getElementById('ticker').value.trim();
+  if (!raw) return;
+  const ticker = formatTicker(raw);
+
+  const btn = document.getElementById('analyzeBtn');
+  const loading = document.getElementById('loading');
+  const errBox = document.getElementById('errBox');
+  const result = document.getElementById('result');
+
+  btn.disabled = true;
+  loading.style.display = 'block';
+  errBox.style.display = 'none';
+  result.style.display = 'none';
+
+  const marketLabel = {us:'美股',tw:'台股',hk:'港股'}[market];
+
+  const prompt = `Analyze ${marketLabel} stock "${ticker}" against Mark Minervini's 8 Trend Template criteria.
+Use web search to get current real market data.
+Reply ONLY with valid JSON, no markdown fences, no extra text:
+{
+  "ticker":"${ticker}",
+  "company":"完整公司名稱（中文優先）",
+  "price":0.00,
+  "currency":"TWD",
+  "priceChange":"+1.2%",
+  "criteria":[
+    {"id":1,"name":"股價高於150日及200日均線","pass":true,"desc":"股價必須高於150日和200日移動平均線","val":"現價 $X｜150MA $X｜200MA $X"},
+    {"id":2,"name":"150日均線高於200日均線","pass":true,"desc":"150日均線必須高於200日均線","val":"150MA $X > 200MA $X"},
+    {"id":3,"name":"200日均線持續上升≥1個月","pass":true,"desc":"200日均線至少持續上升1個月","val":"上升約 X 個月"},
+    {"id":4,"name":"50日均線高於150日和200日均線","pass":true,"desc":"50日均線必須高於150日和200日均線","val":"50MA $X｜150MA $X｜200MA $X"},
+    {"id":5,"name":"股價比52週低點高出≥25%","pass":true,"desc":"目前股價比52週最低點至少高出25%","val":"現價 $X｜52W低 $X｜漲幅 X%"},
+    {"id":6,"name":"股價在52週高點25%以內","pass":true,"desc":"現價距52週最高點不超過25%","val":"現價 $X｜52W高 $X｜距離 X%"},
+    {"id":7,"name":"RS相對強度排名≥70","pass":true,"desc":"相對實力排名不低於70，最好90以上","val":"估計RS排名：X"},
+    {"id":8,"name":"股價在50日均線之上","pass":true,"desc":"突破前期底部後，現價應在50日均線上方","val":"現價 $X｜50MA $X"}
+  ],
+  "passCount":6,
+  "stage":"第X階段 — 一句話說明（中文）",
+  "summary":"一句話總結（中文）",
+  "note":"補充說明或風險提示（中文，1-2句）"
+}
+Use null for pass if data uncertain. If invalid ticker, all pass=null, company="找不到此股票".`;
+
+  try {
+    const res = await fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        tools:[{type:"web_search_20250305",name:"web_search"}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const txt = (data.content||[]).map(b=>b.type==='text'?b.text:'').join('');
+    const clean = txt.replace(/```json|```/g,'').trim();
+    render(JSON.parse(clean));
+  } catch(e) {
+    errBox.textContent = '分析失敗，請確認股票代號是否正確，或稍後再試。';
+    errBox.style.display = 'block';
+  } finally {
+    loading.style.display = 'none';
+    btn.disabled = false;
+  }
+}
+
+function render(d) {
+  const pass = d.criteria.filter(c=>c.pass===true).length;
+  const pct = Math.round(pass/8*100);
+  let vClass='verdict-fail', vText='不符合標準';
+  if(pass>=7){vClass='verdict-pass';vText='✓ 符合趨勢模板';}
+  else if(pass>=5){vClass='verdict-warn';vText='△ 部分符合';}
+  const barColor = pass>=7?'var(--green)':pass>=5?'var(--amber)':'var(--red)';
+  const price = d.price?`${d.currency||''} ${Number(d.price).toLocaleString()}`:'—';
+
+  const rows = d.criteria.map(c=>{
+    const cls = c.pass===true?'ok':c.pass===false?'no':'unk';
+    const icon = c.pass===true?'✓':c.pass===false?'✕':'?';
+    return `<div class="criterion">
+      <div class="c-icon ${cls}">${icon}</div>
+      <div style="flex:1">
+        <div class="c-num">標準 0${c.id}</div>
+        <div class="c-name">${c.name}</div>
+        <div class="c-desc">${c.desc}</div>
+        ${c.val?`<div class="c-val">${c.val}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('result').innerHTML = `
+    <div class="r-header">
+      <div>
+        <div class="r-ticker">${d.ticker}</div>
+        <div class="r-company">${d.company}</div>
+      </div>
+      <span class="verdict ${vClass}">${vText}</span>
+    </div>
+    <div class="score-strip">
+      <div class="score-cell">
+        <div class="score-cell-label">符合條件</div>
+        <div class="score-cell-val">${pass}<small> / 8</small></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">目前價格</div>
+        <div class="score-cell-val" style="font-size:1.2rem">${price}</div>
+        <div class="score-cell-sub">${d.priceChange||'—'} 今日</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-cell-label">市場階段</div>
+        <div class="score-cell-val" style="font-size:0.95rem;padding-top:4px">${d.stage||'—'}</div>
+      </div>
+    </div>
+    <div class="criteria-wrap">
+      <div class="criteria-section-label">趨勢模板逐項檢核</div>
+      ${rows}
+    </div>
+    <div class="r-footer">
+      <div class="r-summary">${d.summary||''}</div>
+      ${d.note?`<div class="r-note">${d.note}</div>`:''}
+    </div>
+  `;
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+document.getElementById('ticker').addEventListener('keydown',e=>{
+  if(e.key==='Enter') analyze();
+});
+</script>
+</body>
+</html>
